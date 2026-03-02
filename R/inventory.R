@@ -1,23 +1,25 @@
 #' Safety Stock
 #'
-#' Computes safety stock and its annual holding cost. The demand vector is
-#' assumed to span one year (e.g., 12 monthly periods).
+#' Computes safety stock and its annual holding cost.
 #'
 #' @param demand numeric vector of demand per period (used to compute sigma_d via \code{sd()})
 #' @param L numeric; lead time in same units as demand periods
-#' @param H numeric; holding cost per unit per period
+#' @param H numeric; annual holding cost per unit. If you have a per-period rate
+#'   (e.g., monthly H = k * C), multiply by the number of periods per year first
+#'   (e.g., H = k * C * 12).
 #' @param alpha numeric; stockout probability (provide \code{alpha} OR \code{service_level}, not both)
 #' @param service_level numeric; service level = 1 - alpha
 #'
 #' @return A named list with:
 #' \describe{
 #'   \item{SS}{Safety stock quantity = Z * sigma_d * sqrt(L)}
-#'   \item{annual_holding_cost}{Annual holding cost of safety stock = SS * H * N_periods}
+#'   \item{annual_holding_cost}{Annual holding cost of safety stock = SS * H}
 #' }
 #'
 #' @examples
 #' demand <- c(10, 62, 12, 130, 154, 129, 88, 52, 124, 160, 238, 41)
-#' SS(demand, L = 2, H = 0.4, alpha = 0.05)
+#' H_annual <- 0.02 * 20 * 12  # monthly rate annualized
+#' SS(demand, L = 2, H = H_annual, alpha = 0.05)
 #'
 #' @export
 SS <- function(demand, L, H, alpha = NULL, service_level = NULL) {
@@ -47,7 +49,7 @@ SS <- function(demand, L, H, alpha = NULL, service_level = NULL) {
   sigma_d <- stats::sd(demand)
   ss <- Z * sigma_d * sqrt(L)
 
-  list(SS = ss, annual_holding_cost = ss * H * length(demand))
+  list(SS = ss, annual_holding_cost = ss * H)
 }
 
 #' Reorder Point
@@ -68,7 +70,8 @@ SS <- function(demand, L, H, alpha = NULL, service_level = NULL) {
 #'
 #' @examples
 #' demand <- c(10, 62, 12, 130, 154, 129, 88, 52, 124, 160, 238, 41)
-#' ROP(demand, L = 2, H = 0.4, alpha = 0.05)
+#' H_annual <- 0.02 * 20 * 12
+#' ROP(demand, L = 2, H = H_annual, alpha = 0.05)
 #'
 #' @export
 ROP <- function(demand, L, H, alpha = NULL, service_level = NULL) {
@@ -91,7 +94,7 @@ ROP <- function(demand, L, H, alpha = NULL, service_level = NULL) {
 #'
 #' @param R numeric; annual demand
 #' @param S numeric; ordering cost per order
-#' @param H numeric; holding cost per unit per period
+#' @param H numeric; annual holding cost per unit
 #'
 #' @return A named list with:
 #' \describe{

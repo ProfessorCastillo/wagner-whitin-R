@@ -11,7 +11,7 @@ EOQ(R, S, H)
 
 \item{S}{numeric; ordering cost per order}
 
-\item{H}{numeric; holding cost per unit per period}
+\item{H}{numeric; annual holding cost per unit}
 }
 \value{
 A named list with:
