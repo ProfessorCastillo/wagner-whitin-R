@@ -97,29 +97,21 @@ plot.WW <- function(x, ...) {
   # Save and restore par
   old_par <- par(no.readonly = TRUE)
   on.exit(par(old_par))
-  par(mar = c(7, 4, 4, 2) + 0.1, xpd = TRUE)
+  par(mfrow = c(1, 2), oma = c(0, 0, 2, 0))
 
-  # Bar plot of order quantities
-  bp <- barplot(order_qty, names.arg = seq_len(N),
-                col = "steelblue", border = "steelblue",
-                xlab = "", ylab = "Order Quantity",
-                main = paste0("Wagner-Whitin Lot Sizing (RIC = ", x$RIC, ")"),
-                ylim = c(0, max(c(order_qty, ending_inv)) * 1.15))
+  # Left panel: order quantities
+  barplot(order_qty, names.arg = seq_len(N),
+          col = "steelblue", border = "steelblue",
+          xlab = "Period", ylab = "Order Quantity",
+          main = "Order Quantities")
 
-  mtext("Period", side = 1, line = 2)
+  # Right panel: ending inventory
+  bp <- barplot(ending_inv, names.arg = seq_len(N),
+                col = "red", border = "red",
+                xlab = "Period", ylab = "Ending Inventory",
+                main = "Ending Inventory")
 
-  # Overlay ending inventory line
-  lines(bp, ending_inv, type = "o", col = "red", pch = 16, lwd = 2)
-
-  # Place legend in the outer bottom margin, below the "Period" title
-  par(fig = c(0, 1, 0, 1), oma = c(0, 0, 0, 0), mar = c(0, 0, 0, 0), new = TRUE)
-  plot.new()
-  legend("bottom",
-         legend = c("Order Quantity", "Ending Inventory"),
-         col = c("steelblue", "red"),
-         pch = c(15, 16),
-         lty = c(NA, 1),
-         lwd = c(NA, 2),
-         horiz = TRUE,
-         bty = "n")
+  # Shared title
+  mtext(paste0("Wagner-Whitin Lot Sizing (RIC = ", x$RIC, ")"),
+        outer = TRUE, cex = 1.2)
 }
