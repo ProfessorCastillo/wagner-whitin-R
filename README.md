@@ -2,15 +2,6 @@
 
 An R package implementing the Wagner-Whitin dynamic lot-sizing algorithm, plus common inventory functions (Safety Stock, Reorder Point, EOQ). Built for undergraduate supply chain courses at The Ohio State University.
 
-## Why This Package?
-
-The existing `SCperf` package implements Wagner-Whitin, but its output is hard to use in a classroom setting:
-
-- The cost matrix orientation doesn't match the Excel-based teaching convention
-- The `Jt` vector is a byproduct of `apply()` and can't reliably trace the optimal schedule
-
-This package fixes both problems. The cost matrix rows and columns match the Excel version taught in class, and the optimal schedule is returned as a clear data frame instead of a `Jt` vector.
-
 ## Installation
 
 ```r
