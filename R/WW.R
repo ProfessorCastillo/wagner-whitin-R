@@ -109,7 +109,7 @@ plot.WW <- function(x, ...) {
   # Overlay ending inventory line
   lines(bp, ending_inv, type = "o", col = "red", pch = 16, lwd = 2)
 
-  legend("topright",
+  legend("topleft",
          legend = c("Order Quantity", "Ending Inventory"),
          col = c("steelblue", "red"),
          pch = c(15, 16),
