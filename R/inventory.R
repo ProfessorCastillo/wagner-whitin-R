@@ -1,28 +1,29 @@
 #' Safety Stock
 #'
-#' Computes safety stock and its annual holding cost.
+#' Computes safety stock and its annual holding cost. The function annualizes
+#' the holding cost using the length of the demand vector (e.g., 12 for monthly
+#' demand spanning one year).
 #'
 #' @param demand numeric vector of demand per period (used to compute sigma_d via \code{sd()})
 #' @param L numeric; lead time in same units as demand periods
-#' @param H numeric; annual holding cost per unit. If you have a per-period rate
-#'   (e.g., monthly H = k * C), multiply by the number of periods per year first
-#'   (e.g., H = k * C * 12).
+#' @param k numeric; monthly (per-period) holding cost rate as a proportion of unit cost.
+#'   For example, if the annual rate is 24\%, then k = 0.24 / 12 = 0.02 per month.
+#' @param C numeric; unit cost (cost per item)
 #' @param alpha numeric; stockout probability (provide \code{alpha} OR \code{service_level}, not both)
 #' @param service_level numeric; service level = 1 - alpha
 #'
 #' @return A named list with:
 #' \describe{
 #'   \item{SS}{Safety stock quantity = Z * sigma_d * sqrt(L)}
-#'   \item{annual_holding_cost}{Annual holding cost of safety stock = SS * H}
+#'   \item{annual_holding_cost}{Annual holding cost of safety stock = SS * k * C * length(demand)}
 #' }
 #'
 #' @examples
 #' demand <- c(10, 62, 12, 130, 154, 129, 88, 52, 124, 160, 238, 41)
-#' H_annual <- 0.02 * 20 * 12  # monthly rate annualized
-#' SS(demand, L = 2, H = H_annual, alpha = 0.05)
+#' SS(demand, L = 1, k = 0.02, C = 20, alpha = 0.05)
 #'
 #' @export
-SS <- function(demand, L, H, alpha = NULL, service_level = NULL) {
+SS <- function(demand, L, k, C, alpha = NULL, service_level = NULL) {
   if (is.null(alpha) && is.null(service_level))
     stop("Provide either alpha or service_level", call. = FALSE)
   if (!is.null(alpha) && !is.null(service_level))
@@ -42,14 +43,17 @@ SS <- function(demand, L, H, alpha = NULL, service_level = NULL) {
     stop("demand must be a numeric vector with no NAs", call. = FALSE)
   if (!is.numeric(L) || length(L) != 1 || L <= 0)
     stop("L must be a single positive number", call. = FALSE)
-  if (!is.numeric(H) || length(H) != 1 || H <= 0)
-    stop("H must be a single positive number", call. = FALSE)
+  if (!is.numeric(k) || length(k) != 1 || k <= 0)
+    stop("k must be a single positive number", call. = FALSE)
+  if (!is.numeric(C) || length(C) != 1 || C <= 0)
+    stop("C must be a single positive number", call. = FALSE)
 
   Z <- stats::qnorm(service_level)
   sigma_d <- stats::sd(demand)
   ss <- Z * sigma_d * sqrt(L)
+  H_annual <- k * C * length(demand)
 
-  list(SS = ss, annual_holding_cost = ss * H)
+  list(SS = ss, annual_holding_cost = ss * H_annual)
 }
 
 #' Reorder Point
@@ -70,12 +74,11 @@ SS <- function(demand, L, H, alpha = NULL, service_level = NULL) {
 #'
 #' @examples
 #' demand <- c(10, 62, 12, 130, 154, 129, 88, 52, 124, 160, 238, 41)
-#' H_annual <- 0.02 * 20 * 12
-#' ROP(demand, L = 2, H = H_annual, alpha = 0.05)
+#' ROP(demand, L = 1, k = 0.02, C = 20, alpha = 0.05)
 #'
 #' @export
-ROP <- function(demand, L, H, alpha = NULL, service_level = NULL) {
-  ss_result <- SS(demand, L, H, alpha = alpha, service_level = service_level)
+ROP <- function(demand, L, k, C, alpha = NULL, service_level = NULL) {
+  ss_result <- SS(demand, L, k, C, alpha = alpha, service_level = service_level)
   d_bar <- mean(demand)
   sigma_d <- stats::sd(demand)
 
@@ -91,31 +94,40 @@ ROP <- function(demand, L, H, alpha = NULL, service_level = NULL) {
 #' Economic Order Quantity
 #'
 #' Computes the classic EOQ and its associated Relevant Inventory Costs (RIC).
+#' The holding cost is annualized as k * C * periods.
 #'
 #' @param R numeric; annual demand
 #' @param S numeric; ordering cost per order
-#' @param H numeric; annual holding cost per unit
+#' @param k numeric; monthly (per-period) holding cost rate as a proportion of unit cost.
+#'   For example, if the annual rate is 24\%, then k = 0.24 / 12 = 0.02 per month.
+#' @param C numeric; unit cost (cost per item)
+#' @param periods numeric; number of periods per year (e.g., 12 for monthly data)
 #'
 #' @return A named list with:
 #' \describe{
-#'   \item{EOQ}{Economic order quantity = sqrt(2 * R * S / H)}
-#'   \item{RIC}{Relevant Inventory Costs = EOQ/2 * H + R * S / EOQ}
+#'   \item{EOQ}{Economic order quantity = sqrt(2 * R * S / H_annual)}
+#'   \item{RIC}{Relevant Inventory Costs = EOQ/2 * H_annual + R * S / EOQ}
 #' }
 #'
 #' @examples
-#' EOQ(R = 1200, S = 54, H = 0.4)
+#' EOQ(R = 1200, S = 54, k = 0.02, C = 20, periods = 12)
 #'
 #' @export
-EOQ <- function(R, S, H) {
+EOQ <- function(R, S, k, C, periods) {
   if (!is.numeric(R) || length(R) != 1 || R <= 0)
     stop("R must be a single positive number", call. = FALSE)
   if (!is.numeric(S) || length(S) != 1 || S <= 0)
     stop("S must be a single positive number", call. = FALSE)
-  if (!is.numeric(H) || length(H) != 1 || H <= 0)
-    stop("H must be a single positive number", call. = FALSE)
+  if (!is.numeric(k) || length(k) != 1 || k <= 0)
+    stop("k must be a single positive number", call. = FALSE)
+  if (!is.numeric(C) || length(C) != 1 || C <= 0)
+    stop("C must be a single positive number", call. = FALSE)
+  if (!is.numeric(periods) || length(periods) != 1 || periods <= 0)
+    stop("periods must be a single positive number", call. = FALSE)
 
-  eoq <- sqrt(2 * R * S / H)
-  ric <- eoq / 2 * H + R * S / eoq
+  H_annual <- k * C * periods
+  eoq <- sqrt(2 * R * S / H_annual)
+  ric <- eoq / 2 * H_annual + R * S / eoq
 
   list(EOQ = eoq, RIC = ric)
 }

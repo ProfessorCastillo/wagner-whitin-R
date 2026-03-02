@@ -115,15 +115,17 @@ Start at column N. The row with the minimum value is the last order period. Jump
 
 ## Inventory Calculations
 
-### A Note on Holding Cost Units
+### A Note on k (Holding Cost Rate)
 
-`WW()` works at the **per-period** level — if your demand is monthly, H should be the monthly holding cost per unit (e.g., H = k x C = 0.02 x 20 = 0.40/unit/month).
+All three functions (`SS`, `ROP`, `EOQ`) take `k` and `C` separately instead of a combined H. The parameter `k` is the **monthly (per-period) unit holding cost rate** — the same rate used in `WW()` where H = k x C.
 
-`SS()`, `ROP()`, and `EOQ()` return **annual** costs (annual_holding_cost and RIC). Their H parameter should be the **annual** holding cost per unit. If you have a monthly rate, multiply by 12 first:
+The functions annualize internally: for `SS()` and `ROP()`, the number of periods comes from `length(demand)`; for `EOQ()`, you specify it with the `periods` argument.
 
 ```r
-H_monthly <- 0.02 * 20       # 0.40/unit/month (used in WW)
-H_annual  <- H_monthly * 12  # 4.80/unit/year  (used in SS, ROP, EOQ)
+k <- 0.02   # monthly holding rate (e.g., 24% annual / 12 months)
+C <- 20     # unit cost
+# H per month = k * C = 0.40  (what WW uses)
+# H per year  = k * C * 12 = 4.80  (annualized internally by SS/ROP/EOQ)
 ```
 
 ### Safety Stock: `SS()`
@@ -139,16 +141,15 @@ Where:
 
 ```r
 demand <- c(10, 62, 12, 130, 154, 129, 88, 52, 124, 160, 238, 41)
-H_annual <- 0.02 * 20 * 12  # 4.80/unit/year
 
 # Using alpha (stockout probability)
-SS(demand, L = 2, H = H_annual, alpha = 0.05)
+SS(demand, L = 1, k = 0.02, C = 20, alpha = 0.05)
 
 # Using service level (equivalent)
-SS(demand, L = 2, H = H_annual, service_level = 0.95)
+SS(demand, L = 1, k = 0.02, C = 20, service_level = 0.95)
 ```
 
-Returns `$SS` (safety stock units) and `$annual_holding_cost` (= SS x H).
+Returns `$SS` (safety stock units) and `$annual_holding_cost` (= SS x k x C x length(demand)).
 
 ### Reorder Point: `ROP()`
 
@@ -159,7 +160,7 @@ Computes the inventory level at which to place a new order.
 Where d_bar = `mean(demand)` is the average demand per period.
 
 ```r
-ROP(demand, L = 2, H = H_annual, alpha = 0.05)
+ROP(demand, L = 1, k = 0.02, C = 20, alpha = 0.05)
 ```
 
 Returns `$ROP`, `$SS`, `$annual_holding_cost`, `$d_bar`, and `$sigma_d`.
@@ -169,16 +170,17 @@ Returns `$ROP`, `$SS`, `$annual_holding_cost`, `$d_bar`, and `$sigma_d`.
 The classic EOQ formula for constant demand.
 
 **Formulas:**
-- EOQ = sqrt(2 x R x S / H)
-- RIC = EOQ/2 x H + R x S / EOQ
+- H_annual = k x C x periods
+- EOQ = sqrt(2 x R x S / H_annual)
+- RIC = EOQ/2 x H_annual + R x S / EOQ
 
-Where R is annual demand, S is ordering cost, and H is the annual holding cost per unit.
+Where R is annual demand and S is ordering cost.
 
 ```r
 R <- sum(demand)  # 1200 (annual demand)
-result <- EOQ(R = R, S = 54, H = H_annual)
-result$EOQ  # 569.21
-result$RIC  # 227.68
+result <- EOQ(R = R, S = 54, k = 0.02, C = 20, periods = 12)
+result$EOQ  # 164.32
+result$RIC  # 788.54
 ```
 
 ## Function Reference
@@ -188,9 +190,9 @@ result$RIC  # 227.68
 | `WW(demand, S, H)` | Wagner-Whitin optimal lot sizing |
 | `print(result)` | Display RIC, cost matrix, and schedule |
 | `plot(result)` | Bar chart of orders with inventory line |
-| `SS(demand, L, H, alpha, service_level)` | Safety stock calculation |
-| `ROP(demand, L, H, alpha, service_level)` | Reorder point calculation |
-| `EOQ(R, S, H)` | Economic order quantity and RIC |
+| `SS(demand, L, k, C, alpha, service_level)` | Safety stock calculation |
+| `ROP(demand, L, k, C, alpha, service_level)` | Reorder point calculation |
+| `EOQ(R, S, k, C, periods)` | Economic order quantity and RIC |
 
 ## Sample Code
 
@@ -221,13 +223,12 @@ result$schedule      # Single order covering all 4 periods
 
 ```r
 demand <- c(10, 62, 12, 130, 154, 129, 88, 52, 124, 160, 238, 41)
-H_annual <- 0.02 * 20 * 12  # 4.80/unit/year
 
-ss <- SS(demand, L = 2, H = H_annual, alpha = 0.05)
+ss <- SS(demand, L = 1, k = 0.02, C = 20, alpha = 0.05)
 ss$SS                # Safety stock in units
 ss$annual_holding_cost
 
-rop <- ROP(demand, L = 2, H = H_annual, alpha = 0.05)
+rop <- ROP(demand, L = 1, k = 0.02, C = 20, alpha = 0.05)
 rop$ROP              # Reorder point
 rop$d_bar            # Average demand per period
 ```
@@ -236,7 +237,7 @@ rop$d_bar            # Average demand per period
 
 ```r
 R <- sum(demand)     # 1200 (annual demand)
-result <- EOQ(R, S = 54, H = H_annual)
-result$EOQ           # 569.21
-result$RIC           # 227.68
+result <- EOQ(R, S = 54, k = 0.02, C = 20, periods = 12)
+result$EOQ           # 164.32
+result$RIC           # 788.54
 ```

@@ -4,16 +4,17 @@
 \alias{SS}
 \title{Safety Stock}
 \usage{
-SS(demand, L, H, alpha = NULL, service_level = NULL)
+SS(demand, L, k, C, alpha = NULL, service_level = NULL)
 }
 \arguments{
 \item{demand}{numeric vector of demand per period (used to compute sigma_d via \code{sd()})}
 
 \item{L}{numeric; lead time in same units as demand periods}
 
-\item{H}{numeric; annual holding cost per unit. If you have a per-period rate
-(e.g., monthly H = k * C), multiply by the number of periods per year first
-(e.g., H = k * C * 12).}
+\item{k}{numeric; monthly (per-period) holding cost rate as a proportion of unit cost.
+For example, if the annual rate is 24\%, then k = 0.24 / 12 = 0.02 per month.}
+
+\item{C}{numeric; unit cost (cost per item)}
 
 \item{alpha}{numeric; stockout probability (provide \code{alpha} OR \code{service_level}, not both)}
 
@@ -23,15 +24,16 @@ SS(demand, L, H, alpha = NULL, service_level = NULL)
 A named list with:
 \describe{
   \item{SS}{Safety stock quantity = Z * sigma_d * sqrt(L)}
-  \item{annual_holding_cost}{Annual holding cost of safety stock = SS * H}
+  \item{annual_holding_cost}{Annual holding cost of safety stock = SS * k * C * length(demand)}
 }
 }
 \description{
-Computes safety stock and its annual holding cost.
+Computes safety stock and its annual holding cost. The function annualizes
+the holding cost using the length of the demand vector (e.g., 12 for monthly
+demand spanning one year).
 }
 \examples{
 demand <- c(10, 62, 12, 130, 154, 129, 88, 52, 124, 160, 238, 41)
-H_annual <- 0.02 * 20 * 12  # monthly rate annualized
-SS(demand, L = 2, H = H_annual, alpha = 0.05)
+SS(demand, L = 1, k = 0.02, C = 20, alpha = 0.05)
 
 }

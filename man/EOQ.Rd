@@ -4,26 +4,32 @@
 \alias{EOQ}
 \title{Economic Order Quantity}
 \usage{
-EOQ(R, S, H)
+EOQ(R, S, k, C, periods)
 }
 \arguments{
 \item{R}{numeric; annual demand}
 
 \item{S}{numeric; ordering cost per order}
 
-\item{H}{numeric; annual holding cost per unit}
+\item{k}{numeric; monthly (per-period) holding cost rate as a proportion of unit cost.
+For example, if the annual rate is 24\%, then k = 0.24 / 12 = 0.02 per month.}
+
+\item{C}{numeric; unit cost (cost per item)}
+
+\item{periods}{numeric; number of periods per year (e.g., 12 for monthly data)}
 }
 \value{
 A named list with:
 \describe{
-  \item{EOQ}{Economic order quantity = sqrt(2 * R * S / H)}
-  \item{RIC}{Relevant Inventory Costs = EOQ/2 * H + R * S / EOQ}
+  \item{EOQ}{Economic order quantity = sqrt(2 * R * S / H_annual)}
+  \item{RIC}{Relevant Inventory Costs = EOQ/2 * H_annual + R * S / EOQ}
 }
 }
 \description{
 Computes the classic EOQ and its associated Relevant Inventory Costs (RIC).
+The holding cost is annualized as k * C * periods.
 }
 \examples{
-EOQ(R = 1200, S = 54, H = 0.4)
+EOQ(R = 1200, S = 54, k = 0.02, C = 20, periods = 12)
 
 }
