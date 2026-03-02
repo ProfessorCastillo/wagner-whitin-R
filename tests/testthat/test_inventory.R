@@ -60,12 +60,20 @@ test_that("ROP annual_holding_cost matches SS", {
 
 test_that("EOQ computes sqrt(2RS/H)", {
   result <- EOQ(R = 1200, S = 54, H = 0.4)
-  expect_equal(result, sqrt(2 * 1200 * 54 / 0.4))
+  expect_equal(result$EOQ, sqrt(2 * 1200 * 54 / 0.4))
+})
+
+test_that("EOQ RIC = EOQ/2 * H + R*S/EOQ", {
+  result <- EOQ(R = 1200, S = 54, H = 0.4)
+  expect_equal(result$RIC, result$EOQ / 2 * 0.4 + 1200 * 54 / result$EOQ)
 })
 
 test_that("EOQ textbook example", {
   # R=1000, S=10, H=2 -> sqrt(2*1000*10/2) = sqrt(10000) = 100
-  expect_equal(EOQ(R = 1000, S = 10, H = 2), 100)
+  result <- EOQ(R = 1000, S = 10, H = 2)
+  expect_equal(result$EOQ, 100)
+  # RIC = 100/2 * 2 + 1000*10/100 = 100 + 100 = 200
+  expect_equal(result$RIC, 200)
 })
 
 test_that("EOQ errors for non-positive inputs", {

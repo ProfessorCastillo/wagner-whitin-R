@@ -87,13 +87,17 @@ ROP <- function(demand, L, H, alpha = NULL, service_level = NULL) {
 
 #' Economic Order Quantity
 #'
-#' Computes the classic EOQ formula: \code{sqrt(2 * R * S / H)}.
+#' Computes the classic EOQ and its associated Relevant Inventory Costs (RIC).
 #'
 #' @param R numeric; annual demand
 #' @param S numeric; ordering cost per order
 #' @param H numeric; holding cost per unit per period
 #'
-#' @return numeric; the economic order quantity
+#' @return A named list with:
+#' \describe{
+#'   \item{EOQ}{Economic order quantity = sqrt(2 * R * S / H)}
+#'   \item{RIC}{Relevant Inventory Costs = EOQ/2 * H + R * S / EOQ}
+#' }
 #'
 #' @examples
 #' EOQ(R = 1200, S = 54, H = 0.4)
@@ -107,5 +111,8 @@ EOQ <- function(R, S, H) {
   if (!is.numeric(H) || length(H) != 1 || H <= 0)
     stop("H must be a single positive number", call. = FALSE)
 
-  sqrt(2 * R * S / H)
+  eoq <- sqrt(2 * R * S / H)
+  ric <- eoq / 2 * H + R * S / eoq
+
+  list(EOQ = eoq, RIC = ric)
 }

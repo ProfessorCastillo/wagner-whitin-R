@@ -156,15 +156,18 @@ Returns `$ROP`, `$SS`, `$annual_holding_cost`, `$d_bar`, and `$sigma_d`.
 
 The classic EOQ formula for constant demand.
 
-**Formula:** EOQ = sqrt(2 x R x S / H)
+**Formulas:**
+- EOQ = sqrt(2 x R x S / H)
+- RIC = EOQ/2 x H + R x S / EOQ
 
 Where R is annual demand, S is ordering cost, and H is holding cost per unit per period.
 
 ```r
 # If total annual demand = sum of forecast
 R <- sum(demand)  # 1200
-EOQ(R = R, S = 54, H = 0.4)
-# [1] 569.2100
+result <- EOQ(R = R, S = 54, H = 0.4)
+result$EOQ  # 569.21
+result$RIC  # 227.68
 ```
 
 ## Function Reference
@@ -176,7 +179,7 @@ EOQ(R = R, S = 54, H = 0.4)
 | `plot(result)` | Bar chart of orders with inventory line |
 | `SS(demand, L, H, alpha, service_level)` | Safety stock calculation |
 | `ROP(demand, L, H, alpha, service_level)` | Reorder point calculation |
-| `EOQ(R, S, H)` | Economic order quantity |
+| `EOQ(R, S, H)` | Economic order quantity and RIC |
 
 ## Sample Code
 
@@ -221,5 +224,7 @@ rop$d_bar            # Average demand per period
 
 ```r
 R <- sum(demand)     # 1200 (annual demand)
-EOQ(R, S = 54, H = 0.4)  # 569.21
+result <- EOQ(R, S = 54, H = 0.4)
+result$EOQ           # 569.21
+result$RIC           # 227.68
 ```

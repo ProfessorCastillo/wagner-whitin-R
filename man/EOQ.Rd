@@ -14,10 +14,14 @@ EOQ(R, S, H)
 \item{H}{numeric; holding cost per unit per period}
 }
 \value{
-numeric; the economic order quantity
+A named list with:
+\describe{
+  \item{EOQ}{Economic order quantity = sqrt(2 * R * S / H)}
+  \item{RIC}{Relevant Inventory Costs = EOQ/2 * H + R * S / EOQ}
+}
 }
 \description{
-Computes the classic EOQ formula: \code{sqrt(2 * R * S / H)}.
+Computes the classic EOQ and its associated Relevant Inventory Costs (RIC).
 }
 \examples{
 EOQ(R = 1200, S = 54, H = 0.4)
