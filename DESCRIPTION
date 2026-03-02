@@ -1,0 +1,16 @@
+Package: wagnerwhitin
+Type: Package
+Title: Wagner-Whitin Dynamic Lot Sizing Algorithm
+Version: 0.1.0
+Authors@R: person("Vince", "Castillo", email = "castillo.230@osu.edu",
+    role = c("aut", "cre"))
+Description: Implements the Wagner-Whitin algorithm for dynamic lot sizing with
+    time-varying demand. Output is formatted to match the Excel-based teaching
+    convention used in supply chain management courses. Also includes safety
+    stock (SS), reorder point (ROP), and economic order quantity (EOQ) functions.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Imports: graphics, stats
+Suggests: testthat (>= 3.0.0)
+Config/testthat/edition: 3
+RoxygenNote: 7.3.3
