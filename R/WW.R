@@ -111,7 +111,10 @@ plot.WW <- function(x, ...) {
   # Overlay ending inventory line
   lines(bp, ending_inv, type = "o", col = "red", pch = 16, lwd = 2)
 
-  legend("bottom", inset = c(0, -0.28),
+  # Place legend in the outer bottom margin, below the "Period" title
+  par(fig = c(0, 1, 0, 1), oma = c(0, 0, 0, 0), mar = c(0, 0, 0, 0), new = TRUE)
+  plot.new()
+  legend("bottom",
          legend = c("Order Quantity", "Ending Inventory"),
          col = c("steelblue", "red"),
          pch = c(15, 16),
