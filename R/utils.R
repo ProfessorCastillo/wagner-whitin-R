@@ -4,9 +4,10 @@
 #' Validate inputs for WW()
 #' @param demand numeric vector of demand per period
 #' @param S ordering cost
-#' @param H holding cost per unit per period
+#' @param k per-period holding cost rate
+#' @param C unit cost
 #' @noRd
-.validate_inputs <- function(demand, S, H) {
+.validate_inputs <- function(demand, S, k, C) {
   if (!is.numeric(demand))
     stop("demand must be a numeric vector", call. = FALSE)
   if (any(is.na(demand)))
@@ -17,8 +18,10 @@
     stop("demand must have at least one period", call. = FALSE)
   if (!is.numeric(S) || length(S) != 1 || S <= 0)
     stop("S must be a single positive number", call. = FALSE)
-  if (!is.numeric(H) || length(H) != 1 || H <= 0)
-    stop("H must be a single positive number", call. = FALSE)
+  if (!is.numeric(k) || length(k) != 1 || k <= 0)
+    stop("k must be a single positive number", call. = FALSE)
+  if (!is.numeric(C) || length(C) != 1 || C <= 0)
+    stop("C must be a single positive number", call. = FALSE)
 }
 
 #' Build the cost matrix using the forward algorithm

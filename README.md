@@ -17,10 +17,9 @@ library(wagnerwhitin)
 S <- 54
 k <- 0.02
 C <- 20
-H <- k * C  # 0.40
 
 forecast <- c(10, 62, 12, 130, 154, 129, 88, 52, 124, 160, 238, 41)
-result <- WW(forecast, S, H)
+result <- WW(forecast, S, k, C)
 result
 ```
 
@@ -28,7 +27,7 @@ Output:
 
 ```
 Call:
-WW(demand = forecast, S = 54, H = 0.4)
+WW(demand = forecast, S = 54, k = 0.02, C = 20)
 
 RIC: 501.2
 
@@ -117,14 +116,14 @@ Start at column N. The row with the minimum value is the last order period. Jump
 
 ### A Note on k (Holding Cost Rate)
 
-All three functions (`SS`, `ROP`, `EOQ`) take `k` and `C` separately instead of a combined H. The parameter `k` is the **monthly (per-period) unit holding cost rate** — the same rate used in `WW()` where H = k x C.
+All functions in this package take `k` and `C` separately. The parameter `k` is the **monthly (per-period) holding cost rate** — a proportion of unit cost charged per period for holding one unit.
 
-The functions annualize internally: for `SS()` and `ROP()`, the number of periods comes from `length(demand)`; for `EOQ()`, you specify it with the `periods` argument.
+`WW()` uses k and C directly at the per-period level (H = k x C). `SS()`, `ROP()`, and `EOQ()` annualize internally: for `SS()` and `ROP()`, the number of periods comes from `length(demand)`; for `EOQ()`, you specify it with the `periods` argument.
 
 ```r
 k <- 0.02   # monthly holding rate (e.g., 24% annual / 12 months)
 C <- 20     # unit cost
-# H per month = k * C = 0.40  (what WW uses)
+# H per month = k * C = 0.40  (used by WW at the period level)
 # H per year  = k * C * 12 = 4.80  (annualized internally by SS/ROP/EOQ)
 ```
 
@@ -187,7 +186,7 @@ result$RIC  # 788.54
 
 | Function | Description |
 |----------|-------------|
-| `WW(demand, S, H)` | Wagner-Whitin optimal lot sizing |
+| `WW(demand, S, k, C)` | Wagner-Whitin optimal lot sizing |
 | `print(result)` | Display RIC, cost matrix, and schedule |
 | `plot(result)` | Bar chart of orders with inventory line |
 | `SS(demand, L, k, C, alpha, service_level)` | Safety stock calculation |
@@ -202,10 +201,11 @@ result$RIC  # 788.54
 library(wagnerwhitin)
 
 S <- 54
-H <- 0.02 * 20  # k * C = 0.40
+k <- 0.02
+C <- 20
 forecast <- c(10, 62, 12, 130, 154, 129, 88, 52, 124, 160, 238, 41)
 
-result <- WW(forecast, S, H)
+result <- WW(forecast, S, k, C)
 result$RIC           # 501.2
 result$schedule      # 7 orders
 plot(result)
@@ -214,7 +214,7 @@ plot(result)
 ### Wagner-Whitin: Hillier Textbook Example
 
 ```r
-result <- WW(c(3, 2, 3, 2), S = 2, H = 0.2)
+result <- WW(c(3, 2, 3, 2), S = 2, k = 0.1, C = 2)
 result$RIC           # 4.8
 result$schedule      # Single order covering all 4 periods
 ```

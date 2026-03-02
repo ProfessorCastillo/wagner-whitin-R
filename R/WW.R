@@ -5,7 +5,8 @@
 #'
 #' @param demand numeric vector of demand per period (length N)
 #' @param S numeric; fixed ordering cost per order
-#' @param H numeric; holding cost per unit per period (= k * C)
+#' @param k numeric; per-period holding cost rate (e.g., monthly rate = annual rate / 12)
+#' @param C numeric; unit cost (cost per item). The per-period holding cost is k * C.
 #'
 #' @return An object of class \code{"WW"} with fields:
 #' \describe{
@@ -14,22 +15,24 @@
 #'   \item{schedule}{data.frame with order_period, covers_through, quantity}
 #'   \item{demand}{original demand vector}
 #'   \item{S}{ordering cost used}
-#'   \item{H}{holding cost used}
+#'   \item{k}{holding cost rate used}
+#'   \item{C}{unit cost used}
 #' }
 #'
 #' @examples
 #' forecast <- c(10, 62, 12, 130, 154, 129, 88, 52, 124, 160, 238, 41)
-#' result <- WW(forecast, S = 54, H = 0.4)
+#' result <- WW(forecast, S = 54, k = 0.02, C = 20)
 #' print(result)
 #' plot(result)
 #'
 #' @importFrom graphics barplot lines legend par axis mtext
 #' @importFrom stats qnorm sd
 #' @export
-WW <- function(demand, S, H) {
+WW <- function(demand, S, k, C) {
   cl <- match.call()
-  .validate_inputs(demand, S, H)
+  .validate_inputs(demand, S, k, C)
 
+  H <- k * C
   build <- .build_cost_matrix(demand, S, H)
   sched <- .trace_schedule(build$cost_matrix, demand)
 
@@ -39,7 +42,8 @@ WW <- function(demand, S, H) {
     schedule = sched,
     demand = demand,
     S = S,
-    H = H,
+    k = k,
+    C = C,
     call = cl
   )
   class(result) <- "WW"

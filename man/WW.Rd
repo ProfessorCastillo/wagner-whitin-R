@@ -4,14 +4,16 @@
 \alias{WW}
 \title{Wagner-Whitin Dynamic Lot Sizing Algorithm}
 \usage{
-WW(demand, S, H)
+WW(demand, S, k, C)
 }
 \arguments{
 \item{demand}{numeric vector of demand per period (length N)}
 
 \item{S}{numeric; fixed ordering cost per order}
 
-\item{H}{numeric; holding cost per unit per period (= k * C)}
+\item{k}{numeric; per-period holding cost rate (e.g., monthly rate = annual rate / 12)}
+
+\item{C}{numeric; unit cost (cost per item). The per-period holding cost is k * C.}
 }
 \value{
 An object of class \code{"WW"} with fields:
@@ -21,7 +23,8 @@ An object of class \code{"WW"} with fields:
   \item{schedule}{data.frame with order_period, covers_through, quantity}
   \item{demand}{original demand vector}
   \item{S}{ordering cost used}
-  \item{H}{holding cost used}
+  \item{k}{holding cost rate used}
+  \item{C}{unit cost used}
 }
 }
 \description{
@@ -30,7 +33,7 @@ inventory costs (RIC) using the Wagner-Whitin forward algorithm.
 }
 \examples{
 forecast <- c(10, 62, 12, 130, 154, 129, 88, 52, 124, 160, 238, 41)
-result <- WW(forecast, S = 54, H = 0.4)
+result <- WW(forecast, S = 54, k = 0.02, C = 20)
 print(result)
 plot(result)
 
