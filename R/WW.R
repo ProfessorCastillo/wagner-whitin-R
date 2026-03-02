@@ -97,23 +97,26 @@ plot.WW <- function(x, ...) {
   # Save and restore par
   old_par <- par(no.readonly = TRUE)
   on.exit(par(old_par))
-  par(mar = c(5, 4, 4, 4) + 0.1)
+  par(mar = c(7, 4, 4, 2) + 0.1, xpd = TRUE)
 
   # Bar plot of order quantities
   bp <- barplot(order_qty, names.arg = seq_len(N),
                 col = "steelblue", border = "steelblue",
-                xlab = "Period", ylab = "Order Quantity",
+                xlab = "", ylab = "Order Quantity",
                 main = paste0("Wagner-Whitin Lot Sizing (RIC = ", x$RIC, ")"),
                 ylim = c(0, max(c(order_qty, ending_inv)) * 1.15))
+
+  mtext("Period", side = 1, line = 2)
 
   # Overlay ending inventory line
   lines(bp, ending_inv, type = "o", col = "red", pch = 16, lwd = 2)
 
-  legend("topleft",
+  legend("bottom", inset = c(0, -0.28),
          legend = c("Order Quantity", "Ending Inventory"),
          col = c("steelblue", "red"),
          pch = c(15, 16),
          lty = c(NA, 1),
          lwd = c(NA, 2),
+         horiz = TRUE,
          bty = "n")
 }
