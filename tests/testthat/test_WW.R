@@ -129,3 +129,42 @@ test_that("plot.WW does not error", {
   result <- WW(c(10, 62, 12, 130), S = 54, k = 0.02, C = 20)
   expect_no_error(plot(result))
 })
+
+# ---------- export_xlsx ----------
+
+test_that("export_xlsx creates file with two sheets", {
+  skip_if_not_installed("openxlsx")
+  result <- WW(c(10, 62, 12, 130), S = 54, k = 0.02, C = 20)
+  tmp <- tempfile(fileext = ".xlsx")
+  on.exit(unlink(tmp))
+
+  export_xlsx(result, tmp)
+  expect_true(file.exists(tmp))
+
+  sheets <- openxlsx::getSheetNames(tmp)
+  expect_equal(sheets, c("Cost Matrix", "Ordering Schedule"))
+})
+
+test_that("export_xlsx schedule has correct structure", {
+  skip_if_not_installed("openxlsx")
+  forecast <- c(10, 62, 12, 130, 154, 129, 88, 52, 124, 160, 238, 41)
+  result <- WW(forecast, S = 54, k = 0.02, C = 20)
+  tmp <- tempfile(fileext = ".xlsx")
+  on.exit(unlink(tmp))
+
+  export_xlsx(result, tmp)
+
+  sched <- openxlsx::read.xlsx(tmp, sheet = "Ordering Schedule")
+  expect_equal(nrow(sched), 4)
+  expect_equal(sched[[1]], c("Beginning Inventory", "Replenishment Quantity",
+                              "Demand", "Ending Inventory"))
+
+  # Replenishment total = demand total
+  N <- length(forecast)
+  expect_equal(sched[2, N + 2], sched[3, N + 2])
+})
+
+test_that("export_xlsx rejects non-WW object", {
+  skip_if_not_installed("openxlsx")
+  expect_error(export_xlsx(list(a = 1), "test.xlsx"), "x must be a WW object")
+})

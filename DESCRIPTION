@@ -11,6 +11,8 @@ Description: Implements the Wagner-Whitin algorithm for dynamic lot sizing with
 License: MIT + file LICENSE
 Encoding: UTF-8
 Imports: graphics, stats
-Suggests: testthat (>= 3.0.0)
+Suggests:
+    openxlsx,
+    testthat (>= 3.0.0)
 Config/testthat/edition: 3
 RoxygenNote: 7.3.3

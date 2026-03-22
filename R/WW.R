@@ -115,3 +115,73 @@ plot.WW <- function(x, ...) {
   mtext(paste0("Wagner-Whitin Lot Sizing (RIC = ", x$RIC, ")"),
         outer = TRUE, cex = 1.2)
 }
+
+#' Export WW results to Excel
+#'
+#' Writes two tabs to an .xlsx file: the cost matrix and a period-by-period
+#' ordering schedule showing beginning inventory, replenishment, demand, and
+#' ending inventory. Requires the \pkg{openxlsx} package.
+#'
+#' @param x a WW object
+#' @param file character; path to the output .xlsx file
+#'
+#' @examples
+#' \dontrun{
+#' result <- WW(c(10, 62, 12, 130), S = 54, k = 0.02, C = 20)
+#' export_xlsx(result, "wagner_whitin.xlsx")
+#' }
+#'
+#' @export
+export_xlsx <- function(x, file) {
+  if (!inherits(x, "WW"))
+    stop("x must be a WW object", call. = FALSE)
+  if (!requireNamespace("openxlsx", quietly = TRUE))
+    stop("Package 'openxlsx' is required. Install with: install.packages('openxlsx')",
+         call. = FALSE)
+
+  N <- length(x$demand)
+
+  # Compute period-by-period inventory
+  order_qty <- rep(0, N)
+  order_qty[x$schedule$order_period] <- x$schedule$quantity
+
+  beg_inv <- numeric(N)
+  end_inv <- numeric(N)
+  inv <- 0
+  for (t in seq_len(N)) {
+    beg_inv[t] <- inv
+    inv <- inv + order_qty[t] - x$demand[t]
+    end_inv[t] <- inv
+  }
+
+  wb <- openxlsx::createWorkbook()
+
+  # --- Sheet 1: Cost Matrix ---
+  openxlsx::addWorksheet(wb, "Cost Matrix")
+  cm_df <- data.frame(Period = seq_len(N), x$cost_matrix, check.names = FALSE)
+  colnames(cm_df) <- c("Period", seq_len(N))
+  openxlsx::writeData(wb, "Cost Matrix", cm_df)
+
+  # --- Sheet 2: Ordering Schedule ---
+  openxlsx::addWorksheet(wb, "Ordering Schedule")
+
+  # Build the schedule data frame (4 rows x N+2 columns)
+  sched_df <- data.frame(
+    `--` = c("Beginning Inventory", "Replenishment Quantity", "Demand",
+             "Ending Inventory"),
+    check.names = FALSE, stringsAsFactors = FALSE
+  )
+  for (t in seq_len(N)) {
+    sched_df[[as.character(t)]] <- c(beg_inv[t], order_qty[t], x$demand[t], end_inv[t])
+  }
+  sched_df[["Total"]] <- c(NA_real_, sum(order_qty), sum(x$demand), sum(end_inv))
+
+  openxlsx::writeData(wb, "Ordering Schedule", sched_df)
+
+  # Overwrite Beginning Inventory total with "--"
+  openxlsx::writeData(wb, "Ordering Schedule", "--",
+                       startRow = 2, startCol = N + 2)
+
+  openxlsx::saveWorkbook(wb, file, overwrite = TRUE)
+  invisible(file)
+}
