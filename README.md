@@ -101,6 +101,7 @@ Export the cost matrix and a period-by-period ordering schedule to `.xlsx` (requ
 
 ```r
 # install.packages("openxlsx")  # one-time install
+library(openxlsx)
 export_xlsx(result, "wagner_whitin.xlsx")
 ```
 
