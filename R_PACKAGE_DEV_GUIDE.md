@@ -38,7 +38,7 @@ Before writing code, produce a detailed plan covering:
 - File creation order (what depends on what)
 - Algorithm pseudocode for non-trivial functions
 - Naming conventions (be consistent across all functions)
-- Parameter naming (decide once, apply everywhere — e.g., all functions take `k` and `C`, not some taking `H`)
+- Parameter naming (decide once, apply everywhere — e.g., if two functions share a concept, use the same parameter name in both)
 - Test case expected values (compute by hand or verify independently)
 
 **Lesson learned:** Parameter inconsistency between functions causes student confusion. Decide on a shared interface early and stick to it.
@@ -337,9 +337,9 @@ git remote set-url origin git@github.com:User/repo.git
 
 Things that came up during development that are worth knowing ahead of time:
 
-1. **Decide parameter names once.** We started with `H` (holding cost) in `WW()` and had to refactor everything to `k` and `C` later. Pick the shared interface before writing any functions.
+1. **Decide parameter names once.** If multiple functions share a concept (e.g., a cost rate, a threshold, a time horizon), use the same parameter name in all of them. Refactoring parameter names after tests and docs are written is tedious and error-prone.
 
-2. **Unit consistency matters for teaching.** Students will use the same `k` and `C` across WW, SS, ROP, and EOQ. If some functions need annual rates and others need monthly, handle the conversion inside the function and document it clearly.
+2. **Unit consistency matters for teaching.** If some functions need inputs in different units than others (e.g., monthly vs. annual), handle the conversion inside the function and document it clearly. Don't make students do the conversion themselves.
 
 3. **Don't fight base R plotting.** Legend placement in single-panel plots was a recurring issue. Side-by-side panels (`par(mfrow = c(1, 2))`) with separate subtitles was simpler and cleaner than trying to overlay a legend.
 
