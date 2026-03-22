@@ -256,3 +256,9 @@ result <- EOQ(R, S = 54, k = 0.02, C = 20, periods = 12)
 result$EOQ           # 164.32
 result$RIC           # 788.54
 ```
+
+## AI Assistant for Students
+
+This repo includes an AI assistant system prompt designed to help undergraduate students install and use the package. See [`AI_ASSISTANT_SYSTEM_PROMPT.md`](AI_ASSISTANT_SYSTEM_PROMPT.md) for the full prompt.
+
+To use it, paste the contents of that file into the system prompt (or custom instructions) of any LLM chat interface (e.g., ChatGPT, Claude). The assistant — named **Coding Brutus** — will walk students through installation, running the course example, and interpreting the output step by step.

@@ -3,3 +3,4 @@
 ^LICENSE\.md$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^AI_ASSISTANT_SYSTEM_PROMPT\.md$
