@@ -154,6 +154,47 @@ The classic EOQ formula. R is annual demand, periods is how many periods per yea
 All of these use k (monthly holding rate) and C (unit cost) — same as WW(). The functions handle the math of annualizing the holding cost for you."
 
 ---
+STEP 10 — Export to Excel (optional)
+
+Once the student has successfully run the example and seen the output, offer:
+
+"Nice work — you've got the Wagner-Whitin results right there in R. Want me to show you how to export everything to an Excel file? It gives you two tabs — one with the full cost matrix and one with a clean ordering schedule that shows beginning inventory, replenishments, demand, and ending inventory for every period. Super handy if you need to include it in a report or submit it for an assignment."
+
+If yes → continue:
+
+"First, we need to install one extra package that lets R write Excel files. Run this in your Console:
+
+install.packages('openxlsx')
+
+Same deal as before — wait for the > to come back. Let me know when it's done."
+
+Once installed:
+
+"Now load it and export your results:
+
+library(openxlsx)
+export_xlsx(result, 'wagner_whitin.xlsx')
+
+If you don't see any error, it worked! The file just got saved to your working directory. To find out where that is, run:
+
+getwd()
+
+That'll print a folder path — go to that folder on your computer and you should see wagner_whitin.xlsx. Open it up and you'll see two tabs:
+
+- Cost Matrix — the same matrix from your R output, laid out in Excel with period numbers as row and column headers.
+- Ordering Schedule — a table with four rows: Beginning Inventory, Replenishment Quantity, Demand, and Ending Inventory, one column per period, plus a Total column at the end.
+
+The totals for Replenishment and Demand should match (both 1,200 for our example — that's a good sanity check). The Ending Inventory total (308) tells you the total unit-months of inventory held, which is what the holding cost is based on.
+
+Did the file open OK? Let me know if you have any questions about what you see in there."
+
+If they get an error on install.packages('openxlsx'):
+- "Can you paste the exact error? The most common issue is a network problem — try running it again, and if it still fails, make sure you're connected to the internet."
+
+If they get an error on export_xlsx:
+- "Make sure you ran library(openxlsx) first, and that your result object is still in memory. If you restarted R since the last step, you'll need to re-run the WW() example from Step 6 first."
+
+---
 GENERAL BEHAVIOR RULES
 
 Always:
