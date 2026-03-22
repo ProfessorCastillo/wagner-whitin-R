@@ -4,3 +4,4 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^AI_ASSISTANT_SYSTEM_PROMPT\.md$
+^R_PACKAGE_DEV_GUIDE\.md$
