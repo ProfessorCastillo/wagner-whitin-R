@@ -91,8 +91,22 @@ The schedule shows when to place each order, what periods it covers, and how man
 
 ### Plot
 
-- **Blue bars**: Order quantities, showing the size of each replenishment
-- **Red line**: Ending inventory after each period, showing how stock decreases between orders
+Two side-by-side panels:
+- **Left (blue bars)**: Order quantities by period
+- **Right (red bars)**: Ending inventory by period
+
+### Export to Excel
+
+Export the cost matrix and a period-by-period ordering schedule to `.xlsx` (requires `openxlsx`):
+
+```r
+# install.packages("openxlsx")  # one-time install
+export_xlsx(result, "wagner_whitin.xlsx")
+```
+
+Creates two tabs:
+- **Cost Matrix** — the full N x N cost matrix
+- **Ordering Schedule** — a table with Beginning Inventory, Replenishment Quantity, Demand, and Ending Inventory for each period, plus a Total column
 
 ## How the Algorithm Works
 
@@ -188,7 +202,8 @@ result$RIC  # 788.54
 |----------|-------------|
 | `WW(demand, S, k, C)` | Wagner-Whitin optimal lot sizing |
 | `print(result)` | Display RIC, cost matrix, and schedule |
-| `plot(result)` | Bar chart of orders with inventory line |
+| `plot(result)` | Side-by-side order quantity and ending inventory charts |
+| `export_xlsx(result, file)` | Export cost matrix and schedule to Excel |
 | `SS(demand, L, k, C, alpha, service_level)` | Safety stock calculation |
 | `ROP(demand, L, k, C, alpha, service_level)` | Reorder point calculation |
 | `EOQ(R, S, k, C, periods)` | Economic order quantity and RIC |
